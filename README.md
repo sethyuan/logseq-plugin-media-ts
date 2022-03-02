@@ -6,7 +6,7 @@ This plugin can generate timestamps for video, audio and Bilibili video, it take
 
 ## 使用展示 (Usage)
 
-![demo](demo_inline_toc.gif)
+![demo](demo.gif)
 
 ## 使用示例 (Examples)
 
