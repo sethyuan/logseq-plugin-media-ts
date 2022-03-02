@@ -10,14 +10,13 @@ This plugin can generate timestamps for video, audio and Bilibili video, it take
 
 ## 使用示例 (Examples)
 
-推荐使用 /命令 来快捷插入以下代码。请参看上方动图。
+推荐使用 `/Media timestamp` 来快捷插入以下代码。请参看上方动图。
 
-It is recommended to use /commands for quick inserts. Please refer to the above animated gif.
+对于`video`与`audio`标签可在插入时间戳时自动获取当前位置。对于 B 站视频，出于 Logseq 本身的一些安全性限制，无法获取当前位置，点击时间戳跳转时也不能直接定位，需要重新加载播放器。
 
-```
-/Bilibili timestamp
-/Media timestamp
-```
+It is recommended to use `/Media timestamp` for quick inserts. Please refer to the above animated gif.
+
+For `video` and `audio` tags, the current playing position can be obtained automatically when inserting the timestamp. For Bilibili videos however, due to security limitations in Logseq, it is not possible to obtain its current playing position and when you click on the timestamp later, a reloading of the player can not be avoided.
 
 可以传“秒数”，也可以传“分:秒”或“时:分:秒”。
 
@@ -27,9 +26,6 @@ You can pass in formats like "number of seconds", "minutes:seconds" or "hours:mi
 {{renderer :media-timestamp, 60}}
 {{renderer :media-timestamp, 01:00}}
 {{renderer :media-timestamp, 00:01:00}}
-{{renderer :bilibili-timestamp, 60}}
-{{renderer :bilibili-timestamp, 01:00}}
-{{renderer :bilibili-timestamp, 00:01:00}}
 ```
 
 ## 用户配置 (User configs)
@@ -37,19 +33,16 @@ You can pass in formats like "number of seconds", "minutes:seconds" or "hours:mi
 ```json
 {
   "disabled": false,
-  "bilibiliTsShortcut": "",
   "mediaTsShortcut": ""
 }
 ```
 
 在 Logseq 的插件页面打开插件的配置后，有以下几项配置可供使用，请参照上方代码块进行设置（各项的默认值以体现在代码块中）：
 
-- `bilibiliTsShortcut`: 为生成 bilibili-timestamp 设置快捷键，例如`mod+shift+b`。
 - `mediaTsShortcut`: 为生成 media-timestamp 设置快捷键，例如`mod+shift+m`。
 
 There are a couple of user settings available when you access the plugin settings from Logseq's plugins page. Please refer to the source block above (Default values are given in the source block).
 
-- `bilibiliTsShortcut`: Assign a shortcut for bilibili-timestamp operation, e.g. `mod+shift+b`.
 - `mediaTsShortcut`: Assign a shortcut for media-timestamp operation, e.g. `mod+shift+m`.
 
 ## 自定义样式 (Syle Customization)
