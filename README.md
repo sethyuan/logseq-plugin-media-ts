@@ -20,7 +20,7 @@ For `video` and `audio` tags, the current playing position can be obtained autom
 
 可以传“秒数”，也可以传“分:秒”或“时:分:秒”。
 
-You can pass in formats like "number of seconds", "minutes:seconds" or "hours:minutes:seconds".
+You can pass in "number of seconds", "minutes:seconds" or "hours:minutes:seconds".
 
 ```
 {{renderer :media-timestamp, 60}}
