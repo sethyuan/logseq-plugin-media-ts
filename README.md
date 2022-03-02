@@ -15,8 +15,15 @@ This plugin can generate timestamps for video, audio and Bilibili video, it take
 It is recommended to use /commands for quick inserts. Please refer to the above animated gif.
 
 ```
+/Bilibili timestamp
+/Media timestamp
+```
+
 可以传“秒数”，也可以传“分:秒”或“时:分:秒”。
+
 You can pass in formats like "number of seconds", "minutes:seconds" or "hours:minutes:seconds".
+
+```
 {{renderer :media-timestamp, 60}}
 {{renderer :media-timestamp, 01:00}}
 {{renderer :media-timestamp, 00:01:00}}
@@ -37,13 +44,13 @@ You can pass in formats like "number of seconds", "minutes:seconds" or "hours:mi
 
 在 Logseq 的插件页面打开插件的配置后，有以下几项配置可供使用，请参照上方代码块进行设置（各项的默认值以体现在代码块中）：
 
-- `bilibiliTsShortcut`: 为生成 bilibili-timestamp 设置快捷键，例如`mod+b mod+b`。
-- `mediaTsShortcut`: 为生成 media-timestamp 设置快捷键，例如`mod+b mod+m`。
+- `bilibiliTsShortcut`: 为生成 bilibili-timestamp 设置快捷键，例如`mod+shift+b`。
+- `mediaTsShortcut`: 为生成 media-timestamp 设置快捷键，例如`mod+shift+m`。
 
 There are a couple of user settings available when you access the plugin settings from Logseq's plugins page. Please refer to the source block above (Default values are given in the source block).
 
-- `bilibiliTsShortcut`: Assign a shortcut for bilibili-timestamp operation, e.g. `mod+b mod+b`.
-- `mediaTsShortcut`: Assign a shortcut for media-timestamp operation, e.g. `mod+b mod+m`.
+- `bilibiliTsShortcut`: Assign a shortcut for bilibili-timestamp operation, e.g. `mod+shift+b`.
+- `mediaTsShortcut`: Assign a shortcut for media-timestamp operation, e.g. `mod+shift+m`.
 
 ## 自定义样式 (Syle Customization)
 

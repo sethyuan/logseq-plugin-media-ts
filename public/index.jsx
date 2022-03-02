@@ -20,35 +20,31 @@ async function main() {
   )
   logseq.Editor.registerSlashCommand("Media timestamp", insertMediaTsRenderer)
 
-  if (logseq.settings?.bilibiliTsShortcut) {
-    logseq.App.registerCommandPalette(
-      {
-        key: "insert-bilibili-ts",
-        label:
-          lang === "zh-CN" ? "插入Bilibili时间戳" : "Insert Bilibili timestamp",
-        keybinding: {
-          binding: logseq.settings.bilibiliTsShortcut,
-        },
+  logseq.App.registerCommandPalette(
+    {
+      key: "insert-bilibili-ts",
+      label:
+        lang === "zh-CN" ? "插入Bilibili时间戳" : "Insert Bilibili timestamp",
+      keybinding: {
+        binding: logseq.settings.bilibiliTsShortcut,
       },
-      (e) => {
-        insertBilibiliTsRenderer()
+    },
+    (e) => {
+      insertBilibiliTsRenderer()
+    },
+  )
+  logseq.App.registerCommandPalette(
+    {
+      key: "insert-media-ts",
+      label: lang === "zh-CN" ? "插入多媒体时间戳" : "Insert media timestamp",
+      keybinding: {
+        binding: logseq.settings.mediaTsShortcut,
       },
-    )
-  }
-  if (logseq.settings?.mediaTsShortcut) {
-    logseq.App.registerCommandPalette(
-      {
-        key: "insert-media-ts",
-        label: lang === "zh-CN" ? "插入多媒体时间戳" : "Insert media timestamp",
-        keybinding: {
-          binding: logseq.settings.mediaTsShortcut,
-        },
-      },
-      (e) => {
-        insertMediaTsRenderer()
-      },
-    )
-  }
+    },
+    (e) => {
+      insertMediaTsRenderer()
+    },
+  )
 
   console.log("#media-ts loaded")
 }
