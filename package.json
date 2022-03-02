@@ -1,0 +1,20 @@
+{
+  "name": "logseq-plugin-media-ts",
+  "version": "0.1.0",
+  "main": "dist/index.html",
+  "logseq": {
+    "id": "_sethyuan-logseq-media-ts",
+    "icon": "./icon.png"
+  },
+  "scripts": {
+    "start": "wmr",
+    "build": "wmr build",
+    "serve": "wmr serve"
+  },
+  "dependencies": {
+    "@logseq/libs": "^0.0.1-alpha.35"
+  },
+  "devDependencies": {
+    "wmr": "^3.7.2"
+  }
+}
