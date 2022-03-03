@@ -8,6 +8,12 @@ This plugin can generate timestamps for video, audio and Bilibili video, it take
 
 ![demo](demo.gif)
 
+观看视频的同时记录笔记。
+
+Take notes while you watch the video.
+
+![demo](right-sidebar.gif)
+
 ## 使用示例 (Examples)
 
 推荐使用 `/Media timestamp` 来快捷插入以下代码。请参看上方动图。
