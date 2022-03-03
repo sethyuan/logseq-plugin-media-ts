@@ -83,15 +83,22 @@ function formatTime(secs) {
 }
 
 function findMediaElement(refEl) {
-  const iframeElements = Array.from(
-    parent.document.getElementsByTagName("iframe"),
+  return (
+    findMediaElementIn(
+      parent.document.getElementById("right-sidebar"),
+      (_el) => true,
+    ) ||
+    findMediaElementIn(
+      parent.document.getElementById("left-container"),
+      (el) => el?.compareDocumentPosition(refEl) === FOLLOWING,
+    )
   )
-  const videoElements = Array.from(
-    parent.document.getElementsByTagName("video"),
-  )
-  const audioElements = Array.from(
-    parent.document.getElementsByTagName("audio"),
-  )
+}
+
+function findMediaElementIn(root, pred) {
+  const iframeElements = Array.from(root.getElementsByTagName("iframe"))
+  const videoElements = Array.from(root.getElementsByTagName("video"))
+  const audioElements = Array.from(root.getElementsByTagName("audio"))
 
   let bilibili = null
   let video = null
@@ -99,24 +106,21 @@ function findMediaElement(refEl) {
 
   for (let i = iframeElements.length - 1; i >= 0; i--) {
     const el = iframeElements[i]
-    if (
-      el.src.startsWith("https://player.bilibili") &&
-      el?.compareDocumentPosition(refEl) === FOLLOWING
-    ) {
+    if (el.src.startsWith("https://player.bilibili") && pred(el)) {
       bilibili = el
       break
     }
   }
   for (let i = videoElements.length - 1; i >= 0; i--) {
     const el = videoElements[i]
-    if (el?.compareDocumentPosition(refEl) === FOLLOWING) {
+    if (pred(el)) {
       video = el
       break
     }
   }
   for (let i = audioElements.length - 1; i >= 0; i--) {
     const el = audioElements[i]
-    if (el?.compareDocumentPosition(refEl) === FOLLOWING) {
+    if (pred(el)) {
       audio = el
       break
     }
