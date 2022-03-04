@@ -24,6 +24,11 @@ It is recommended to use `/Media timestamp` for quick inserts. Please refer to t
 
 For `video` and `audio` tags, the current playing position can be obtained automatically when inserting the timestamp. For Bilibili videos however, due to security limitations in Logseq, it is not possible to obtain its current playing position and when you click on the timestamp later, a reloading of the player can not be avoided.
 
+```
+/Insert video
+/Insert audio
+```
+
 可以传“秒数”，也可以传“分:秒”或“时:分:秒”。
 
 You can pass in "number of seconds", "minutes:seconds" or "hours:minutes:seconds".

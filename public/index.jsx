@@ -10,6 +10,22 @@ async function main() {
   logseq.App.onMacroRendererSlotted(tsRenderer)
 
   logseq.Editor.registerSlashCommand("Media timestamp", insertMediaTsRenderer)
+  logseq.Editor.registerSlashCommand("Insert video", async () => {
+    await logseq.Editor.insertAtEditingCursor(
+      `<video controls crossorigin="anonymous" style="width: 100%" src=""></video>`,
+    )
+    const input = parent.document.activeElement
+    const pos = input.selectionStart - 10
+    input.setSelectionRange(pos, pos)
+  })
+  logseq.Editor.registerSlashCommand("Insert audio", async () => {
+    await logseq.Editor.insertAtEditingCursor(
+      `<audio controls crossorigin="anonymous" src=""></audio>`,
+    )
+    const input = parent.document.activeElement
+    const pos = input.selectionStart - 10
+    input.setSelectionRange(pos, pos)
+  })
 
   logseq.App.registerCommandPalette(
     {
