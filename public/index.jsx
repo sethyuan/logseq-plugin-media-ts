@@ -4,6 +4,9 @@ const icon = `<svg fill="currentColor" viewBox="0 0 20 20" class="h-5 w-5"><path
 
 const FOLLOWING = 4
 
+const VideoExts = new Set(["mp4", "mov", "mpg", "mpeg", "webm", "ogv", "avi"])
+const AudioExts = new Set(["mp3", "m4a", "wav", "ogg"])
+
 async function main() {
   const { preferredLanguage: lang } = await logseq.App.getUserConfigs()
 
@@ -11,20 +14,32 @@ async function main() {
 
   logseq.Editor.registerSlashCommand("Media timestamp", insertMediaTsRenderer)
   logseq.Editor.registerSlashCommand("Insert video", async () => {
+    const text = await parent.navigator.clipboard.readText()
+    const isVideo = isVideoUri(text)
     await logseq.Editor.insertAtEditingCursor(
-      `<video controls crossorigin="anonymous" style="width: 100%" src=""></video>`,
+      `<video controls crossorigin="anonymous" style="width: 100%" src="${
+        isVideo ? text : ""
+      }"></video>`,
     )
-    const input = parent.document.activeElement
-    const pos = input.selectionStart - 10
-    input.setSelectionRange(pos, pos)
+    if (!isVideo) {
+      const input = parent.document.activeElement
+      const pos = input.selectionStart - 10
+      input.setSelectionRange(pos, pos)
+    }
   })
   logseq.Editor.registerSlashCommand("Insert audio", async () => {
+    const text = await parent.navigator.clipboard.readText()
+    const isAudio = isAudioUri(text)
     await logseq.Editor.insertAtEditingCursor(
-      `<audio controls crossorigin="anonymous" src=""></audio>`,
+      `<audio controls crossorigin="anonymous" src="${
+        isAudio ? text : ""
+      }"></audio>`,
     )
-    const input = parent.document.activeElement
-    const pos = input.selectionStart - 10
-    input.setSelectionRange(pos, pos)
+    if (!isAudio) {
+      const input = parent.document.activeElement
+      const pos = input.selectionStart - 10
+      input.setSelectionRange(pos, pos)
+    }
   })
 
   logseq.App.registerCommandPalette(
@@ -151,6 +166,19 @@ function findMediaElementIn(root, pred) {
     }
   }
   return closest
+}
+
+function isVideoUri(str) {
+  return VideoExts.has(getExt(str))
+}
+
+function isAudioUri(str) {
+  return AudioExts.has(getExt(str))
+}
+
+function getExt(str) {
+  const dotIndex = str.lastIndexOf(".")
+  return dotIndex > -1 ? str.substring(dotIndex + 1).toLowerCase() : null
 }
 
 const model = {
