@@ -18,7 +18,7 @@ async function main() {
     const isVideo = isVideoUri(text)
     await logseq.Editor.insertAtEditingCursor(
       `<video controls crossorigin="anonymous" style="width: 100%" src="${
-        isVideo ? text : ""
+        isVideo ? normalize(text) : ""
       }"></video>`,
     )
     if (!isVideo) {
@@ -32,7 +32,7 @@ async function main() {
     const isAudio = isAudioUri(text)
     await logseq.Editor.insertAtEditingCursor(
       `<audio controls crossorigin="anonymous" src="${
-        isAudio ? text : ""
+        isAudio ? normalize(text) : ""
       }"></audio>`,
     )
     if (!isAudio) {
@@ -179,6 +179,14 @@ function isAudioUri(str) {
 function getExt(str) {
   const dotIndex = str.lastIndexOf(".")
   return dotIndex > -1 ? str.substring(dotIndex + 1).toLowerCase() : null
+}
+
+function normalize(str) {
+  let uri = encodeURI(str.replaceAll("\\", "/"))
+  if (!/^(ftp|file|http|https|):\/\//i.test(uri)) {
+    uri = `file://${uri}`
+  }
+  return uri
 }
 
 const model = {
