@@ -2,8 +2,7 @@ import "@logseq/libs"
 
 const icon = `<svg fill="currentColor" viewBox="0 0 20 20" class="h-5 w-5"><path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" fill-rule="evenodd"></path></svg>`
 
-const FOLLOWING = 4
-
+const Following = 4
 const VideoExts = new Set(["mp4", "mov", "mpg", "mpeg", "webm", "ogv", "avi"])
 const AudioExts = new Set(["mp3", "m4a", "wav", "ogg"])
 
@@ -11,11 +10,23 @@ async function main() {
   const { preferredLanguage: lang } = await logseq.App.getUserConfigs()
 
   logseq.App.onMacroRendererSlotted(tsRenderer)
-
   logseq.Editor.registerSlashCommand("Media timestamp", insertMediaTsRenderer)
+  logseq.App.registerCommandPalette(
+    {
+      key: "insert-media-ts",
+      label: lang === "zh-CN" ? "插入多媒体时间戳" : "Insert media timestamp",
+      keybinding: {
+        binding: logseq.settings.mediaTsShortcut,
+      },
+    },
+    (e) => {
+      insertMediaTsRenderer()
+    },
+  )
+
   logseq.Editor.registerSlashCommand("Insert video", async () => {
     const text = await parent.navigator.clipboard.readText()
-    const isVideo = isVideoUri(text)
+    const isVideo = VideoExts.has(getExt(text))
     await logseq.Editor.insertAtEditingCursor(
       `<video controls crossorigin="anonymous" style="width: 100%" src="${
         isVideo ? normalize(text) : ""
@@ -29,7 +40,7 @@ async function main() {
   })
   logseq.Editor.registerSlashCommand("Insert audio", async () => {
     const text = await parent.navigator.clipboard.readText()
-    const isAudio = isAudioUri(text)
+    const isAudio = AudioExts.has(getExt(text))
     await logseq.Editor.insertAtEditingCursor(
       `<audio controls crossorigin="anonymous" src="${
         isAudio ? normalize(text) : ""
@@ -41,19 +52,6 @@ async function main() {
       input.setSelectionRange(pos, pos)
     }
   })
-
-  logseq.App.registerCommandPalette(
-    {
-      key: "insert-media-ts",
-      label: lang === "zh-CN" ? "插入多媒体时间戳" : "Insert media timestamp",
-      keybinding: {
-        binding: logseq.settings.mediaTsShortcut,
-      },
-    },
-    (e) => {
-      insertMediaTsRenderer()
-    },
-  )
 
   console.log("#media-ts loaded")
 }
@@ -121,7 +119,7 @@ function findMediaElement(refEl) {
     ) ||
     findMediaElementIn(
       parent.document.getElementById("left-container"),
-      (el) => el?.compareDocumentPosition(refEl) === FOLLOWING,
+      (el) => el?.compareDocumentPosition(refEl) === Following,
     )
   )
 }
@@ -161,19 +159,11 @@ function findMediaElementIn(root, pred) {
   let closest = null
   for (const el of elements) {
     if (el == null) continue
-    if (closest == null || closest.compareDocumentPosition(el) === FOLLOWING) {
+    if (closest == null || closest.compareDocumentPosition(el) === Following) {
       closest = el
     }
   }
   return closest
-}
-
-function isVideoUri(str) {
-  return VideoExts.has(getExt(str))
-}
-
-function isAudioUri(str) {
-  return AudioExts.has(getExt(str))
 }
 
 function getExt(str) {
@@ -182,11 +172,8 @@ function getExt(str) {
 }
 
 function normalize(str) {
-  let uri = encodeURI(str.replaceAll("\\", "/"))
-  if (!/^(ftp|file|http|https|):\/\//i.test(uri)) {
-    uri = `file://${uri}`
-  }
-  return uri
+  if (/^(ftp|file|http|https|):\/\//i.test(str)) return str
+  return `file://${encodeURI(str.replaceAll("\\", "/"))}`
 }
 
 const model = {
