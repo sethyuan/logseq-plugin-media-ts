@@ -53,6 +53,18 @@ async function main() {
     }
   })
 
+  logseq.useSettingsSchema([
+    {
+      key: "mediaTsShortcut",
+      type: "string",
+      default: "",
+      description:
+        lang === "zh-CN"
+          ? '为生成 media-timestamp 设置快捷键，例如 "mod+shift+m"。'
+          : 'Assign a shortcut for media-timestamp operation, e.g. "mod+shift+m".',
+    },
+  ])
+
   console.log("#media-ts loaded")
 }
 
