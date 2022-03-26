@@ -24,10 +24,11 @@ It is recommended to use `/Media timestamp` for quick inserts. Please refer to t
 
 For `video` and `audio` tags, the current playing position can be obtained automatically when inserting the timestamp. For Bilibili videos however, due to security limitations in Logseq, it is not possible to obtain its current playing position and when you click on the timestamp later, a reloading of the player can not be avoided.
 
-```
-/Insert video
-/Insert audio
-```
+你可以先将视频地址拷贝下来，再用 `/insert video` 插入，这样命令可以自动帮你正确处理视频地址，无论它是一个网址，本机文件的绝对路径，还是已上传到 Logseq 的一个资源的相对路径。
+插入音频也是采用与上面视频同样的方法，不过这次用 `/insert audio`。
+
+You can copy the video address first and then insert it with `/insert video`. That way the command will automatically handle the video address correctly for you, whether it is a URL, a local file's absolute path, or a relative path to a resource that has been uploaded to Logseq.
+Insert audio in the same way as the video above, but this time with `/insert audio`.
 
 可以传“秒数”，也可以传“分:秒”或“时:分:秒”。
 

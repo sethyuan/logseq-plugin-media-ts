@@ -29,7 +29,7 @@ async function main() {
     const isVideo = VideoExts.has(getExt(text))
     await logseq.Editor.insertAtEditingCursor(
       `<video controls crossorigin="anonymous" style="width: 100%" src="${
-        isVideo ? normalize(text) : ""
+        isVideo ? await normalize(text) : ""
       }"></video>`,
     )
     if (!isVideo) {
@@ -43,7 +43,7 @@ async function main() {
     const isAudio = AudioExts.has(getExt(text))
     await logseq.Editor.insertAtEditingCursor(
       `<audio controls crossorigin="anonymous" src="${
-        isAudio ? normalize(text) : ""
+        isAudio ? await normalize(text) : ""
       }"></audio>`,
     )
     if (!isAudio) {
@@ -183,8 +183,12 @@ function getExt(str) {
   return dotIndex > -1 ? str.substring(dotIndex + 1).toLowerCase() : null
 }
 
-function normalize(str) {
+async function normalize(str) {
   if (/^(ftp|file|http|https|):\/\//i.test(str)) return str
+  if (str.startsWith("../")) {
+    const { path, url } = await logseq.App.getCurrentGraph()
+    return `file://${path}${str.substring(2)}`
+  }
   return `file://${encodeURI(str.replaceAll("\\", "/"))}`
 }
 
