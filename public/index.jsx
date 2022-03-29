@@ -15,9 +15,11 @@ async function main() {
     {
       key: "insert-media-ts",
       label: lang === "zh-CN" ? "插入多媒体时间戳" : "Insert media timestamp",
-      keybinding: {
-        binding: logseq.settings.mediaTsShortcut,
-      },
+      ...(logseq.settings.mediaTsShortcut && {
+        keybinding: {
+          binding: logseq.settings.mediaTsShortcut,
+        },
+      }),
     },
     (e) => {
       insertMediaTsRenderer()
