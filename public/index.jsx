@@ -14,7 +14,7 @@ async function main() {
   logseq.App.registerCommandPalette(
     {
       key: "insert-media-ts",
-      label: lang === "zh-CN" ? "插入多媒体时间戳" : "Insert media timestamp",
+      label: lang === "zh-CN" ? "插入媒体时间戳" : "Insert media timestamp",
       ...(logseq.settings.mediaTsShortcut && {
         keybinding: {
           binding: logseq.settings.mediaTsShortcut,
