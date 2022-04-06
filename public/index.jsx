@@ -5,6 +5,7 @@ const icon = `<svg fill="currentColor" viewBox="0 0 20 20" class="h-5 w-5"><path
 const Following = 4
 const VideoExts = new Set(["mp4", "mov", "mpg", "mpeg", "webm", "ogv", "avi"])
 const AudioExts = new Set(["mp3", "m4a", "wav", "ogg"])
+const LinkRegex = /!?\[(?:\\\]|[^\]])*\]\(((?:\\\)|[^\)])+)\)/
 
 async function main() {
   const { preferredLanguage: lang } = await logseq.App.getUserConfigs()
@@ -26,34 +27,24 @@ async function main() {
     },
   )
 
-  logseq.Editor.registerSlashCommand("Insert video", async () => {
-    const text = await parent.navigator.clipboard.readText()
-    const isVideo = VideoExts.has(getExt(text))
-    await logseq.Editor.insertAtEditingCursor(
-      `<video controls crossorigin="anonymous" style="width: 100%" src="${
-        isVideo ? await normalize(text) : ""
-      }"></video>`,
-    )
-    if (!isVideo) {
-      const input = parent.document.activeElement
-      const pos = input.selectionStart - 10
-      input.setSelectionRange(pos, pos)
-    }
+  logseq.App.onMacroRendererSlotted(mediaRenderer)
+  logseq.Editor.registerSlashCommand("Insert media", async () => {
+    await logseq.Editor.insertAtEditingCursor(`{{renderer :media, }}`)
+    const input = parent.document.activeElement
+    const pos = input.selectionStart - 2
+    input.setSelectionRange(pos, pos)
   })
-  logseq.Editor.registerSlashCommand("Insert audio", async () => {
-    const text = await parent.navigator.clipboard.readText()
-    const isAudio = AudioExts.has(getExt(text))
-    await logseq.Editor.insertAtEditingCursor(
-      `<audio controls crossorigin="anonymous" src="${
-        isAudio ? await normalize(text) : ""
-      }"></audio>`,
-    )
-    if (!isAudio) {
-      const input = parent.document.activeElement
-      const pos = input.selectionStart - 10
-      input.setSelectionRange(pos, pos)
-    }
-  })
+
+  logseq.Editor.registerBlockContextMenuItem(
+    lang === "zh-CN" ? "转换为媒体渲染" : "Convert to media renderer",
+    async ({ uuid }) => {
+      const block = await logseq.Editor.getBlock(uuid)
+      await logseq.Editor.updateBlock(
+        uuid,
+        `{{renderer :media, ${block.content.replace(LinkRegex, "$1")}}}`,
+      )
+    },
+  )
 
   logseq.useSettingsSchema([
     {
@@ -192,6 +183,35 @@ async function normalize(str) {
     return `file://${path}${str.substring(2)}`
   }
   return `file://${encodeURI(str.replaceAll("\\", "/"))}`
+}
+
+async function mediaRenderer({ slot, payload: { arguments: args } }) {
+  if (args.length === 0) return
+  const type = args[0].trim()
+  if (type !== ":media") return
+
+  const path = args[1].trim()
+  if (!path) return
+
+  const { preferredLanguage: lang } = await logseq.App.getUserConfigs()
+  const ext = getExt(path)
+
+  logseq.provideUI({
+    key: "media",
+    slot,
+    template: VideoExts.has(ext)
+      ? `<video controls crossorigin="anonymous" style="width: 100%" src="${await normalize(
+          path,
+        )}"></video>`
+      : AudioExts.has(ext)
+      ? `<audio controls crossorigin="anonymous" src="${await normalize(
+          path,
+        )}"></audio>`
+      : lang === "zh-CN"
+      ? "无媒体"
+      : "No media",
+    reset: true,
+  })
 }
 
 const model = {
