@@ -6,6 +6,12 @@ This plugin can generate timestamps for video, audio and Bilibili video, it take
 
 ## 使用展示 (Usage)
 
+插入媒体文件（视频、音频），支持网络上的 URL，本地全路径的文件和已上传至 Logseq 的相对路径的文件。
+
+Insert media files (video and audio), supports URLs, local files with absolute path and files uploaded to Logseq and in relative path.
+
+![demo](renderer.gif)
+
 ![demo](demo.gif)
 
 观看视频的同时记录笔记。
