@@ -118,9 +118,8 @@ function formatTime(secs) {
 
 function findMediaElement(refEl) {
   return (
- parent.document.querySelector(".panel-content") && 
     findMediaElementIn(
-      parent.document.querySelector(".panel-content"),
+      parent.document.querySelector(".cards-review"),
       (_el) => true,
     ) ||
     findMediaElementIn(
@@ -135,6 +134,8 @@ function findMediaElement(refEl) {
 }
 
 function findMediaElementIn(root, pred) {
+  if (root == null) return null
+
   const iframeElements = Array.from(root.getElementsByTagName("iframe"))
   const videoElements = Array.from(root.getElementsByTagName("video"))
   const audioElements = Array.from(root.getElementsByTagName("audio"))
