@@ -118,6 +118,11 @@ function formatTime(secs) {
 
 function findMediaElement(refEl) {
   return (
+ parent.document.querySelector(".panel-content") && 
+    findMediaElementIn(
+      parent.document.querySelector(".panel-content"),
+      (_el) => true,
+    ) ||
     findMediaElementIn(
       parent.document.getElementById("right-sidebar"),
       (_el) => true,
