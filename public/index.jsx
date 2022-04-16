@@ -3,8 +3,17 @@ import "@logseq/libs"
 const icon = `<svg fill="currentColor" viewBox="0 0 20 20" class="h-5 w-5"><path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" fill-rule="evenodd"></path></svg>`
 
 const Following = 4
-const VideoExts = new Set(["mp4", "mov", "mpg", "mpeg", "webm", "ogv", "avi"])
-const AudioExts = new Set(["mp3", "m4a", "wav", "ogg"])
+const VideoExts = new Set([
+  "mp4",
+  "mov",
+  "mpg",
+  "mpeg",
+  "webm",
+  "ogv",
+  "avi",
+  "m4v",
+])
+const AudioExts = new Set(["mp3", "m4a", "wav", "ogg", "aac"])
 const LinkRegex = /!?\[(?:\\\]|[^\]])*\]\(((?:\\\)|[^\)])+)\)/
 
 async function main() {
