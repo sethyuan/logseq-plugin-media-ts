@@ -91,7 +91,7 @@ async function tsRenderer({ slot, payload: { arguments: args } }) {
 async function insertMediaTsRenderer() {
   const input = parent.document.activeElement
   const media = findMediaElement(input)
-  const currentTime = media?.currentTime ?? 0
+  const currentTime = Math.floor(media?.currentTime ?? 0)
   await logseq.Editor.insertAtEditingCursor(
     `{{renderer :media-timestamp, ${currentTime}}}`,
   )
