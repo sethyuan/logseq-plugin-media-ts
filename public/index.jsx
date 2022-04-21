@@ -78,14 +78,17 @@ async function tsRenderer({ slot, payload: { arguments: args } }) {
   const timeArg = args[1].trim()
   if (!timeArg) return
 
-  const time = getTimeFromArg(timeArg)
-  const timeStr = formatTime(time)
-  logseq.provideUI({
-    key: "media-timestamp",
-    slot,
-    template: `<a class="kef-media-ts-ts svg-small" data-ts="${time}" data-slot="${slot}" data-on-click="mediaJump">${icon}${timeStr}</a>`,
-    reset: true,
-  })
+  const renderered = parent.document.getElementById(slot).childElementCount > 0
+  if (!renderered) {
+    const time = getTimeFromArg(timeArg)
+    const timeStr = formatTime(time)
+    logseq.provideUI({
+      key: "media-timestamp",
+      slot,
+      template: `<a class="kef-media-ts-ts svg-small" data-ts="${time}" data-slot="${slot}" data-on-click="mediaJump">${icon}${timeStr}</a>`,
+      reset: true,
+    })
+  }
 }
 
 async function insertMediaTsRenderer() {
@@ -209,25 +212,28 @@ async function mediaRenderer({ slot, payload: { arguments: args } }) {
   const path = args[1].trim()
   if (!path) return
 
-  const { preferredLanguage: lang } = await logseq.App.getUserConfigs()
-  const ext = getExt(path)
+  const renderered = parent.document.getElementById(slot).childElementCount > 0
+  if (!renderered) {
+    const { preferredLanguage: lang } = await logseq.App.getUserConfigs()
+    const ext = getExt(path)
 
-  logseq.provideUI({
-    key: "media",
-    slot,
-    template: VideoExts.has(ext)
-      ? `<video controls crossorigin="anonymous" style="width: 100%" src="${await normalize(
-          path,
-        )}"></video>`
-      : AudioExts.has(ext)
-      ? `<audio controls crossorigin="anonymous" src="${await normalize(
-          path,
-        )}"></audio>`
-      : lang === "zh-CN"
-      ? "无媒体"
-      : "No media",
-    reset: true,
-  })
+    logseq.provideUI({
+      key: "media",
+      slot,
+      template: VideoExts.has(ext)
+        ? `<video controls crossorigin="anonymous" style="width: 100%" src="${await normalize(
+            path,
+          )}"></video>`
+        : AudioExts.has(ext)
+        ? `<audio controls crossorigin="anonymous" src="${await normalize(
+            path,
+          )}"></audio>`
+        : lang === "zh-CN"
+        ? "无媒体"
+        : "No media",
+      reset: true,
+    })
+  }
 }
 
 const model = {
