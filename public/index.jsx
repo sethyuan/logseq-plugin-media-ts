@@ -78,17 +78,14 @@ async function tsRenderer({ slot, payload: { arguments: args } }) {
   const timeArg = args[1].trim()
   if (!timeArg) return
 
-  const renderered = parent.document.getElementById(slot).childElementCount > 0
-  if (!renderered) {
-    const time = getTimeFromArg(timeArg)
-    const timeStr = formatTime(time)
-    logseq.provideUI({
-      key: "media-timestamp",
-      slot,
-      template: `<a class="kef-media-ts-ts svg-small" data-ts="${time}" data-slot="${slot}" data-on-click="mediaJump">${icon}${timeStr}</a>`,
-      reset: true,
-    })
-  }
+  const time = getTimeFromArg(timeArg)
+  const timeStr = formatTime(time)
+  logseq.provideUI({
+    key: "media-timestamp",
+    slot,
+    template: `<a class="kef-media-ts-ts svg-small" data-ts="${time}" data-slot="${slot}" data-on-click="mediaJump">${icon}${timeStr}</a>`,
+    reset: true,
+  })
 }
 
 async function insertMediaTsRenderer() {
