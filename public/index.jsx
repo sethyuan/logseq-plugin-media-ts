@@ -81,7 +81,7 @@ async function tsRenderer({ slot, payload: { arguments: args } }) {
   const time = getTimeFromArg(timeArg)
   const timeStr = formatTime(time)
   logseq.provideUI({
-    key: "media-timestamp",
+    key: `media-ts-${slot}`,
     slot,
     template: `<a class="kef-media-ts-ts svg-small" data-ts="${time}" data-slot="${slot}" data-on-click="mediaJump">${icon}${timeStr}</a>`,
     reset: true,
@@ -215,7 +215,7 @@ async function mediaRenderer({ slot, payload: { arguments: args } }) {
     const ext = getExt(path)
 
     logseq.provideUI({
-      key: "media",
+      key: `media-${slot}`,
       slot,
       template: VideoExts.has(ext)
         ? `<video controls crossorigin="anonymous" style="width: 100%" src="${await normalize(
