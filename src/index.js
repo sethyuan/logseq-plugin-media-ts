@@ -1,4 +1,6 @@
 import "@logseq/libs"
+import { setup, t } from "logseq-l10n"
+import zhCN from "./translations/zh-CN.json"
 
 const icon = `<svg fill="currentColor" viewBox="0 0 20 20" class="h-5 w-5"><path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" fill-rule="evenodd"></path></svg>`
 
@@ -17,14 +19,18 @@ const AudioExts = new Set(["mp3", "m4a", "wav", "ogg", "aac"])
 const LinkRegex = /!?\[(?:\\\]|[^\]])*\]\(((?:\\\)|[^\)])+)\)/
 
 async function main() {
-  const { preferredLanguage: lang } = await logseq.App.getUserConfigs()
+  await setup({
+    urlTemplate:
+      "https://raw.githubusercontent.com/sethyuan/logseq-plugin-media-ts/master/src/translations/${locale}.json",
+    builtinTranslations: { "zh-CN": zhCN },
+  })
 
   logseq.App.onMacroRendererSlotted(tsRenderer)
   logseq.Editor.registerSlashCommand("Media timestamp", insertMediaTsRenderer)
   logseq.App.registerCommandPalette(
     {
       key: "insert-media-ts",
-      label: lang === "zh-CN" ? "插入媒体时间戳" : "Insert media timestamp",
+      label: t("Insert media timestamp"),
       ...(logseq.settings.mediaTsShortcut && {
         keybinding: {
           binding: logseq.settings.mediaTsShortcut,
@@ -45,7 +51,7 @@ async function main() {
   })
 
   logseq.Editor.registerBlockContextMenuItem(
-    lang === "zh-CN" ? "转换为媒体渲染" : "Convert to media renderer",
+    t("Convert to media renderer"),
     async ({ uuid }) => {
       const block = await logseq.Editor.getBlock(uuid)
       await logseq.Editor.updateBlock(
@@ -60,10 +66,9 @@ async function main() {
       key: "mediaTsShortcut",
       type: "string",
       default: "",
-      description:
-        lang === "zh-CN"
-          ? '为生成 media-timestamp 设置快捷键，例如 "mod+shift+m"。'
-          : 'Assign a shortcut for media-timestamp operation, e.g. "mod+shift+m".',
+      description: t(
+        'Assign a shortcut for media-timestamp operation, e.g. "mod+shift+m".',
+      ),
     },
   ])
 
@@ -211,7 +216,6 @@ async function mediaRenderer({ slot, payload: { arguments: args } }) {
 
   const renderered = parent.document.getElementById(slot).childElementCount > 0
   if (!renderered) {
-    const { preferredLanguage: lang } = await logseq.App.getUserConfigs()
     const ext = getExt(path)
 
     logseq.provideUI({
@@ -225,9 +229,7 @@ async function mediaRenderer({ slot, payload: { arguments: args } }) {
         ? `<audio controls crossorigin="anonymous" src="${await normalize(
             path,
           )}"></audio>`
-        : lang === "zh-CN"
-        ? "无媒体"
-        : "No media",
+        : t("No media"),
       reset: true,
     })
   }
