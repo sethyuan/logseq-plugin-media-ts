@@ -70,6 +70,14 @@ async function main() {
         'Assign a shortcut for media-timestamp operation, e.g. "mod+shift+m".',
       ),
     },
+    {
+      key: "captureOffset",
+      type: "number",
+      default: 0,
+      description: t(
+        "An offset in seconds, for the capture time. E.g, -2.5 would move the capture time 2.5 seconds before the capture.",
+      ),
+    },
   ])
 
   console.log("#media-ts loaded")
@@ -96,7 +104,11 @@ async function tsRenderer({ slot, payload: { arguments: args } }) {
 async function insertMediaTsRenderer() {
   const input = parent.document.activeElement
   const media = findMediaElement(input)
-  const currentTime = media?.currentTime ?? 0
+  const captureOffset = +logseq.settings?.captureOffset ?? 0
+  const currentTime = Math.max(
+    (media?.currentTime ?? 0) + (+logseq.settings?.captureOffset ?? 0),
+    0,
+  )
   await logseq.Editor.insertAtEditingCursor(
     `{{renderer :media-timestamp, ${currentTime}}}`,
   )
