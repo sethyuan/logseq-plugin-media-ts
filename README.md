@@ -30,11 +30,9 @@ It is recommended to use `/Media timestamp` for quick inserts. Please refer to t
 
 For `video` and `audio` tags, the current playing position can be obtained automatically when inserting the timestamp. For Bilibili videos however, due to security limitations in Logseq, it is not possible to obtain its current playing position and when you click on the timestamp later, a reloading of the player can not be avoided.
 
-你可以先将视频地址拷贝下来，再用 `/insert video` 插入，这样命令可以自动帮你正确处理视频地址，无论它是一个网址，本机文件的绝对路径，还是已上传到 Logseq 的一个资源的相对路径。
-插入音频也是采用与上面视频同样的方法，不过这次用 `/insert audio`。
+你可以先将媒体地址拷贝下来，再用 `/Insert media` 插入，这样命令可以自动帮你正确处理视频地址，无论它是一个网址，本机文件的绝对路径，还是已上传到 Logseq 的一个资源的相对路径。
 
-You can copy the video address first and then insert it with `/insert video`. That way the command will automatically handle the video address correctly for you, whether it is a URL, a local file's absolute path, or a relative path to a resource that has been uploaded to Logseq.
-Insert audio in the same way as the video above, but this time with `/insert audio`.
+You can copy the media address first and then insert it with `/Insert media`. That way the command will automatically handle the video address correctly for you, whether it is a URL, a local file's absolute path, or a relative path to a resource that has been uploaded to Logseq.
 
 可以传“秒数”，也可以传“分:秒”或“时:分:秒”。
 
@@ -53,23 +51,6 @@ You can give a block's reference as the second parameter if you want to create a
 ```
 {{renderer :media-timestamp, 60, ((63158bf5-1436-41e4-a8af-a4a03b8b5a5b))}}
 ```
-
-## 用户配置 (User configs)
-
-```json
-{
-  "disabled": false,
-  "mediaTsShortcut": ""
-}
-```
-
-在 Logseq 的插件页面打开插件的配置后，有以下几项配置可供使用，请参照上方代码块进行设置（各项的默认值以体现在代码块中）：
-
-- `mediaTsShortcut`: 为生成 media-timestamp 设置快捷键，例如`mod+shift+m`。
-
-There are a couple of user settings available when you access the plugin settings from Logseq's plugins page. Please refer to the source block above (Default values are given in the source block).
-
-- `mediaTsShortcut`: Assign a shortcut for media-timestamp operation, e.g. `mod+shift+m`.
 
 ## 自定义样式 (Syle Customization)
 
