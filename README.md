@@ -46,6 +46,14 @@ You can pass in "number of seconds", "minutes:seconds" or "hours:minutes:seconds
 {{renderer :media-timestamp, 00:01:00}}
 ```
 
+如果想为特定块中的媒体创建时间戳可以再传入它的引用，例如：
+
+You can give a block's reference as the second parameter if you want to create a timestamp for a media within a specific block, e.g:
+
+```
+{{renderer :media-timestamp, 60, ((63158bf5-1436-41e4-a8af-a4a03b8b5a5b))}}
+```
+
 ## 用户配置 (User configs)
 
 ```json
