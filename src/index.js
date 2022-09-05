@@ -88,15 +88,18 @@ async function tsRenderer({ slot, payload: { arguments: args } }) {
   const type = args[0].trim()
   if (type !== ":media-timestamp") return
 
-  const timeArg = args[1].trim()
+  const timeArg = args[1]?.trim()
   if (!timeArg) return
+
+  const mediaBlockId = args[2]?.replace(/^\s*\(\((.*)\)\)\s*$/, "$1")
 
   const time = getTimeFromArg(timeArg)
   const timeStr = formatTime(time)
+  const dataBlock = mediaBlockId ? ` data-block="${mediaBlockId}"` : ""
   logseq.provideUI({
     key: `media-ts-${slot}`,
     slot,
-    template: `<a class="kef-media-ts-ts svg-small" data-ts="${time}" data-slot="${slot}" data-on-click="mediaJump">${icon}${timeStr}</a>`,
+    template: `<a class="kef-media-ts-ts svg-small" data-ts="${time}"${dataBlock} data-slot="${slot}" data-on-click="mediaJump">${icon}${timeStr}</a>`,
     reset: true,
   })
 }
@@ -104,14 +107,19 @@ async function tsRenderer({ slot, payload: { arguments: args } }) {
 async function insertMediaTsRenderer() {
   const input = parent.document.activeElement
   const media = findMediaElement(input)
-  const captureOffset = +logseq.settings?.captureOffset ?? 0
-  const currentTime = Math.max(
-    (media?.currentTime ?? 0) + (+logseq.settings?.captureOffset ?? 0),
-    0,
-  )
-  await logseq.Editor.insertAtEditingCursor(
-    `{{renderer :media-timestamp, ${currentTime}}}`,
-  )
+  const mediaTime = media?.currentTime
+  if (mediaTime != null) {
+    const captureOffset = +logseq.settings?.captureOffset ?? 0
+    const currentTime = Math.max(mediaTime + captureOffset, 0)
+    await logseq.Editor.insertAtEditingCursor(
+      `{{renderer :media-timestamp, ${currentTime}}}`,
+    )
+  } else {
+    await logseq.Editor.insertAtEditingCursor(`{{renderer :media-timestamp, }}`)
+    const input = parent.document.activeElement
+    const pos = input.selectionStart - 2
+    input.setSelectionRange(pos, pos)
+  }
 }
 
 function getTimeFromArg(str) {
@@ -143,21 +151,28 @@ function formatTime(secs) {
   }
 }
 
-function findMediaElement(refEl) {
-  return (
-    findMediaElementIn(
-      parent.document.querySelector(".cards-review"),
+function findMediaElement(refEl, blockId) {
+  if (blockId) {
+    return findMediaElementIn(
+      parent.document.querySelector(`.block-content[blockid="${blockId}"]`),
       (_el) => true,
-    ) ||
-    findMediaElementIn(
-      parent.document.getElementById("right-sidebar"),
-      (_el) => true,
-    ) ||
-    findMediaElementIn(
-      parent.document.getElementById("left-container"),
-      (el) => el?.compareDocumentPosition(refEl) === Following,
     )
-  )
+  } else {
+    return (
+      findMediaElementIn(
+        parent.document.querySelector(".cards-review"),
+        (_el) => true,
+      ) ||
+      findMediaElementIn(
+        parent.document.getElementById("right-sidebar"),
+        (_el) => true,
+      ) ||
+      findMediaElementIn(
+        parent.document.getElementById("left-container"),
+        (el) => el?.compareDocumentPosition(refEl) === Following,
+      )
+    )
+  }
 }
 
 function findMediaElementIn(root, pred) {
@@ -251,8 +266,10 @@ const model = {
   mediaJump(args) {
     const slotId = args.dataset.slot
     const ts = +args.dataset.ts
+    const blockId = args.dataset.block
     const el = parent.document.getElementById(slotId)
-    const media = findMediaElement(el)
+    const media = findMediaElement(el, blockId)
+    if (!media) return
     if (media.tagName === "IFRAME") {
       media.src = `${media.src.replace(/&t=[0-9]+(\.[0-9]+)?$/, "")}&t=${ts}`
     } else {
