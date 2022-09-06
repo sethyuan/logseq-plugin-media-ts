@@ -1,5 +1,6 @@
 import "@logseq/libs"
 import { setup, t } from "logseq-l10n"
+import { timePass } from "./libs/utils"
 import zhCN from "./translations/zh-CN.json"
 
 const icon = `<svg fill="currentColor" viewBox="0 0 20 20" class="h-5 w-5"><path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" fill-rule="evenodd"></path></svg>`
@@ -106,7 +107,7 @@ async function tsRenderer({ slot, payload: { arguments: args } }) {
 
 async function insertMediaTsRenderer() {
   const input = parent.document.activeElement
-  const media = findMediaElement(input)
+  const media = await findMediaElement(input)
   const mediaTime = media?.currentTime
   if (mediaTime != null) {
     const captureOffset = +logseq.settings?.captureOffset ?? 0
@@ -151,12 +152,19 @@ function formatTime(secs) {
   }
 }
 
-function findMediaElement(refEl, blockId) {
+async function findMediaElement(refEl, blockId) {
   if (blockId) {
-    return findMediaElementIn(
-      parent.document.querySelector(`.block-content[blockid="${blockId}"]`),
-      (_el) => true,
+    let block = parent.document.querySelector(
+      `.block-content[blockid="${blockId}"]`,
     )
+    if (block == null) {
+      logseq.Editor.openInRightSidebar(blockId)
+      await timePass(1000)
+      block = parent.document.querySelector(
+        `.block-content[blockid="${blockId}"]`,
+      )
+    }
+    return findMediaElementIn(block, (_el) => true)
   } else {
     return (
       findMediaElementIn(
@@ -263,17 +271,18 @@ async function mediaRenderer({ slot, payload: { arguments: args } }) {
 }
 
 const model = {
-  mediaJump(args) {
+  async mediaJump(args) {
     const slotId = args.dataset.slot
     const ts = +args.dataset.ts
     const blockId = args.dataset.block
     const el = parent.document.getElementById(slotId)
-    const media = findMediaElement(el, blockId)
+    const media = await findMediaElement(el, blockId)
     if (!media) return
     if (media.tagName === "IFRAME") {
       media.src = `${media.src.replace(/&t=[0-9]+(\.[0-9]+)?$/, "")}&t=${ts}`
     } else {
       media.currentTime = ts
+      media.play()
     }
   },
 }
