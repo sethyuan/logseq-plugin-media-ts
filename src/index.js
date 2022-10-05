@@ -20,11 +20,7 @@ const AudioExts = new Set(["mp3", "m4a", "wav", "ogg", "aac"])
 const LinkRegex = /!?\[(?:\\\]|[^\]])*\]\(((?:\\\)|[^\)])+)\)/
 
 async function main() {
-  await setup({
-    urlTemplate:
-      "https://raw.githubusercontent.com/sethyuan/logseq-plugin-media-ts/master/src/translations/${locale}.json",
-    builtinTranslations: { "zh-CN": zhCN },
-  })
+  await setup({ builtinTranslations: { "zh-CN": zhCN } })
 
   logseq.App.onMacroRendererSlotted(tsRenderer)
   logseq.Editor.registerSlashCommand("Media timestamp", insertMediaTsRenderer)
