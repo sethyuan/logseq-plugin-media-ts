@@ -172,7 +172,7 @@ function formatTime(secs) {
 async function findMediaTime() {
   const input = parent.document.activeElement
   const media = await findMediaElement(input)
-  if (media != null) {
+  if (media?.currentTime) {
     return media.currentTime
   } else {
     return await askForMediaTime()
