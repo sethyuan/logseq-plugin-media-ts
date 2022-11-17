@@ -64,14 +64,23 @@ async function main() {
 
   bc = new BroadcastChannel("kef-media-ts")
   bc.onmessage = (e) => {
-    const { type, id, ts } = e.data
+    const { type } = e.data
     switch (type) {
-      case "find-req":
+      case "find-req": {
+        const { id } = e.data
         onFindReq(id)
         break
-      case "find-res":
+      }
+      case "find-res": {
+        const { id, ts } = e.data
         onFindRes(id, ts)
         break
+      }
+      case "jump-req": {
+        const { ts, blockId } = e.data
+        onJumpReq(ts, blockId)
+        break
+      }
       default:
         break
     }
@@ -318,10 +327,23 @@ async function onFindReq(id) {
   }
 }
 
-async function onFindRes(id, ts) {
+function onFindRes(id, ts) {
   if (id === lastID) {
     lastTs = ts
   }
+}
+
+async function onJumpReq(ts, blockId) {
+  const media = await findMediaElement(null, blockId)
+  if (!media) return
+  if (media.tagName !== "IFRAME") {
+    media.currentTime = ts
+    media.play()
+  }
+}
+
+function askForJumping(ts, blockId) {
+  bc.postMessage({ type: "jump-req", ts, blockId })
 }
 
 const model = {
@@ -331,12 +353,19 @@ const model = {
     const blockId = args.dataset.block
     const el = parent.document.getElementById(slotId)
     const media = await findMediaElement(el, blockId)
-    if (!media) return
-    if (media.tagName === "IFRAME") {
-      media.src = `${media.src.replace(/&t=[0-9]+(\.[0-9]+)?$/, "")}&t=${ts}`
+    if (media) {
+      if (media.tagName === "IFRAME") {
+        media.src = `${media.src.replace(/&t=[0-9]+(\.[0-9]+)?$/, "")}&t=${ts}`
+      } else {
+        if (media.paused && media.currentTime === 0) {
+          askForJumping(ts, blockId)
+        } else {
+          media.currentTime = ts
+          media.play()
+        }
+      }
     } else {
-      media.currentTime = ts
-      media.play()
+      askForJumping(ts, blockId)
     }
   },
 }
