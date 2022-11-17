@@ -19,6 +19,10 @@ const VideoExts = new Set([
 const AudioExts = new Set(["mp3", "m4a", "wav", "ogg", "aac"])
 const LinkRegex = /!?\[(?:\\\]|[^\]])*\]\(((?:\\\)|[^\)])+)\)/
 
+let bc
+let lastID
+let lastTs
+
 async function main() {
   await setup({ builtinTranslations: { "zh-CN": zhCN } })
 
@@ -58,6 +62,21 @@ async function main() {
     },
   )
 
+  bc = new BroadcastChannel("kef-media-ts")
+  bc.onmessage = (e) => {
+    const { type, id, ts } = e.data
+    switch (type) {
+      case "find-req":
+        onFindReq(id)
+        break
+      case "find-res":
+        onFindRes(id, ts)
+        break
+      default:
+        break
+    }
+  }
+
   logseq.useSettingsSchema([
     {
       key: "mediaTsShortcut",
@@ -76,6 +95,10 @@ async function main() {
       ),
     },
   ])
+
+  logseq.beforeunload(() => {
+    bc.close()
+  })
 
   console.log("#media-ts loaded")
 }
@@ -102,9 +125,7 @@ async function tsRenderer({ slot, payload: { arguments: args } }) {
 }
 
 async function insertMediaTsRenderer() {
-  const input = parent.document.activeElement
-  const media = await findMediaElement(input)
-  const mediaTime = media?.currentTime
+  const mediaTime = await findMediaTime()
   if (mediaTime != null) {
     const captureOffset = +logseq.settings?.captureOffset ?? 0
     const currentTime = Math.max(mediaTime + captureOffset, 0)
@@ -148,6 +169,16 @@ function formatTime(secs) {
   }
 }
 
+async function findMediaTime() {
+  const input = parent.document.activeElement
+  const media = await findMediaElement(input)
+  if (media != null) {
+    return media.currentTime
+  } else {
+    return await askForMediaTime()
+  }
+}
+
 async function findMediaElement(refEl, blockId) {
   if (blockId) {
     let block = parent.document.querySelector(
@@ -173,7 +204,8 @@ async function findMediaElement(refEl, blockId) {
       ) ||
       findMediaElementIn(
         parent.document.getElementById("left-container"),
-        (el) => el?.compareDocumentPosition(refEl) === Following,
+        (el) =>
+          refEl == null || el?.compareDocumentPosition(refEl) === Following,
       )
     )
   }
@@ -263,6 +295,32 @@ async function mediaRenderer({ slot, payload: { arguments: args } }) {
         : t("No media"),
       reset: true,
     })
+  }
+}
+
+function askForMediaTime() {
+  return new Promise((resolve) => {
+    lastID = Date.now()
+    bc.postMessage({ type: "find-req", id: lastID })
+    setTimeout(() => {
+      const ts = lastTs
+      lastID = undefined
+      lastTs = undefined
+      resolve(ts)
+    }, 50)
+  })
+}
+
+async function onFindReq(id) {
+  const media = await findMediaElement()
+  if (media != null) {
+    bc.postMessage({ type: "find-res", id, ts: media.currentTime })
+  }
+}
+
+async function onFindRes(id, ts) {
+  if (id === lastID) {
+    lastTs = ts
   }
 }
 
