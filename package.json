@@ -1,6 +1,6 @@
 {
   "name": "logseq-plugin-media-ts",
-  "version": "0.13.2",
+  "version": "0.14.0",
   "main": "dist/index.html",
   "logseq": {
     "id": "_sethyuan-logseq-media-ts",
@@ -11,7 +11,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@logseq/libs": "0.0.1-alpha.35",
+    "@logseq/libs": "0.0.10",
     "logseq-l10n": "^0.2.0"
   },
   "devDependencies": {

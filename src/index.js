@@ -1,6 +1,6 @@
 import "@logseq/libs"
 import { setup, t } from "logseq-l10n"
-import { timePass } from "./libs/utils"
+import { generateScreenshotName, timePass, toArrayBuffer } from "./libs/utils"
 import zhCN from "./translations/zh-CN.json"
 
 const icon = `<svg fill="currentColor" viewBox="0 0 20 20" class="h-5 w-5"><path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" fill-rule="evenodd"></path></svg>`
@@ -21,7 +21,9 @@ const LinkRegex = /!?\[(?:\\\]|[^\]])*\]\(((?:\\\)|[^\)])+)\)/
 
 let bc
 let lastID
-let lastTs
+let lastData
+
+const storage = logseq.Assets.makeSandboxStorage()
 
 async function main() {
   await setup({ builtinTranslations: { "zh-CN": zhCN } })
@@ -72,8 +74,8 @@ async function main() {
         break
       }
       case "find-res": {
-        const { id, ts } = e.data
-        onFindRes(id, ts)
+        const { id, data } = e.data
+        onFindRes(id, data)
         break
       }
       case "jump-req": {
@@ -102,6 +104,12 @@ async function main() {
       description: t(
         "An offset in seconds, for the capture time. E.g, -2.5 would move the capture time 2.5 seconds before the capture.",
       ),
+    },
+    {
+      key: "captureScreenshot",
+      type: "boolean",
+      default: false,
+      description: t("Whether or not you want to also capture an screenshot."),
     },
   ])
 
@@ -134,13 +142,18 @@ async function tsRenderer({ slot, payload: { arguments: args } }) {
 }
 
 async function insertMediaTsRenderer() {
-  const mediaTime = await findMediaTime()
-  if (mediaTime != null) {
+  const { time, screenshot } = await findMediaData()
+  if (time != null) {
     const captureOffset = +logseq.settings?.captureOffset ?? 0
-    const currentTime = Math.max(mediaTime + captureOffset, 0)
-    await logseq.Editor.insertAtEditingCursor(
-      `{{renderer :media-timestamp, ${currentTime}}}`,
-    )
+    const currentTime = Math.max(time + captureOffset, 0)
+    const ts = `{{renderer :media-timestamp, ${currentTime}}}`
+    if (screenshot) {
+      await logseq.Editor.insertAtEditingCursor(
+        `![timestamp](${screenshot})\n${ts}`,
+      )
+    } else {
+      await logseq.Editor.insertAtEditingCursor(ts)
+    }
   } else {
     await logseq.Editor.insertAtEditingCursor(`{{renderer :media-timestamp, }}`)
     const input = parent.document.activeElement
@@ -178,13 +191,22 @@ function formatTime(secs) {
   }
 }
 
-async function findMediaTime() {
+async function findMediaData() {
   const input = parent.document.activeElement
   const media = await findMediaElement(input)
   if (media?.currentTime) {
-    return media.currentTime
+    if (
+      logseq.settings?.captureScreenshot &&
+      media.tagName.toLowerCase() === "video"
+    ) {
+      return {
+        time: media.currentTime,
+        screenshot: await getVideoScreenshot(media),
+      }
+    }
+    return { time: media.currentTime }
   } else {
-    return await askForMediaTime()
+    return await askForMediaData()
   }
 }
 
@@ -307,29 +329,62 @@ async function mediaRenderer({ slot, payload: { arguments: args } }) {
   }
 }
 
-function askForMediaTime() {
+function askForMediaData() {
   return new Promise((resolve) => {
     lastID = Date.now()
     bc.postMessage({ type: "find-req", id: lastID })
     setTimeout(() => {
-      const ts = lastTs
+      const data = lastData
       lastID = undefined
-      lastTs = undefined
-      resolve(ts)
-    }, 50)
+      lastData = undefined
+      resolve(data)
+    }, 100)
   })
+}
+
+async function getVideoScreenshot(media) {
+  const canvas = parent.document.createElement("canvas")
+  canvas.width = media.videoWidth
+  canvas.height = media.videoHeight
+
+  const ctx = canvas.getContext("2d")
+  ctx.drawImage(media, 0, 0)
+
+  const arrayBuffer = await toArrayBuffer(canvas)
+  const filename = generateScreenshotName(media.currentTime)
+  await storage.setItem(filename, arrayBuffer)
+
+  return `../assets/storages/${logseq.baseInfo.id}/${filename}`
 }
 
 async function onFindReq(id) {
   const media = await findMediaElement()
-  if (media != null) {
-    bc.postMessage({ type: "find-res", id, ts: media.currentTime })
+  if (media?.currentTime) {
+    if (
+      logseq.settings?.captureScreenshot &&
+      media.tagName.toLowerCase() === "video"
+    ) {
+      bc.postMessage({
+        type: "find-res",
+        id,
+        data: {
+          time: media.currentTime,
+          screenshot: await getVideoScreenshot(media),
+        },
+      })
+    } else {
+      bc.postMessage({
+        type: "find-res",
+        id,
+        data: { time: media.currentTime },
+      })
+    }
   }
 }
 
-function onFindRes(id, ts) {
+function onFindRes(id, data) {
   if (id === lastID) {
-    lastTs = ts
+    lastData = data
   }
 }
 
