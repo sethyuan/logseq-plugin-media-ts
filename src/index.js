@@ -30,6 +30,10 @@ async function main() {
 
   logseq.App.onMacroRendererSlotted(tsRenderer)
   logseq.Editor.registerSlashCommand("Media timestamp", insertMediaTsRenderer)
+  logseq.Editor.registerSlashCommand(
+    "Media timestamp with screenshot",
+    insertMediaTsRendererWithScreenshot,
+  )
   logseq.App.registerCommandPalette(
     {
       key: "insert-media-ts",
@@ -42,6 +46,20 @@ async function main() {
     },
     (e) => {
       insertMediaTsRenderer()
+    },
+  )
+  logseq.App.registerCommandPalette(
+    {
+      key: "insert-media-ts-screenshot",
+      label: t("Insert media timestamp with screenshot"),
+      ...(logseq.settings.mediaTsScreenshotShortcut && {
+        keybinding: {
+          binding: logseq.settings.mediaTsScreenshotShortcut,
+        },
+      }),
+    },
+    (e) => {
+      insertMediaTsRenderer(true)
     },
   )
 
@@ -69,8 +87,8 @@ async function main() {
     const { type } = e.data
     switch (type) {
       case "find-req": {
-        const { id } = e.data
-        onFindReq(id)
+        const { id, withScreenshot } = e.data
+        onFindReq(id, withScreenshot)
         break
       }
       case "find-res": {
@@ -94,7 +112,15 @@ async function main() {
       type: "string",
       default: "",
       description: t(
-        'Assign a shortcut for media-timestamp operation, e.g. "mod+shift+m".',
+        'Assign a shortcut for inserting timestamp, e.g. "mod+shift+m".',
+      ),
+    },
+    {
+      key: "mediaTsScreenshotShortcut",
+      type: "string",
+      default: "",
+      description: t(
+        'Assign a shortcut for inserting timestamp + screentshot, e.g. "mod+shift+n".',
       ),
     },
     {
@@ -104,12 +130,6 @@ async function main() {
       description: t(
         "An offset in seconds, for the capture time. E.g, -2.5 would move the capture time 2.5 seconds before the capture.",
       ),
-    },
-    {
-      key: "captureScreenshot",
-      type: "boolean",
-      default: false,
-      description: t("Whether or not you want to also capture an screenshot."),
     },
   ])
 
@@ -141,8 +161,8 @@ async function tsRenderer({ slot, payload: { arguments: args } }) {
   })
 }
 
-async function insertMediaTsRenderer() {
-  const { time, screenshot } = await findMediaData()
+async function insertMediaTsRenderer(withScreenshot = false) {
+  const { time, screenshot } = await findMediaData(withScreenshot)
   if (time != null) {
     const captureOffset = +logseq.settings?.captureOffset ?? 0
     const currentTime = Math.max(time + captureOffset, 0)
@@ -160,6 +180,10 @@ async function insertMediaTsRenderer() {
     const pos = input.selectionStart - 2
     input.setSelectionRange(pos, pos)
   }
+}
+
+async function insertMediaTsRendererWithScreenshot() {
+  return await insertMediaTsRenderer(true)
 }
 
 function getTimeFromArg(str) {
@@ -191,14 +215,11 @@ function formatTime(secs) {
   }
 }
 
-async function findMediaData() {
+async function findMediaData(withScreenshot) {
   const input = parent.document.activeElement
   const media = await findMediaElement(input)
   if (media?.currentTime) {
-    if (
-      logseq.settings?.captureScreenshot &&
-      media.tagName.toLowerCase() === "video"
-    ) {
+    if (withScreenshot && media.tagName.toLowerCase() === "video") {
       return {
         time: media.currentTime,
         screenshot: await getVideoScreenshot(media),
@@ -206,7 +227,7 @@ async function findMediaData() {
     }
     return { time: media.currentTime }
   } else {
-    return await askForMediaData()
+    return await askForMediaData(withScreenshot)
   }
 }
 
@@ -329,10 +350,10 @@ async function mediaRenderer({ slot, payload: { arguments: args } }) {
   }
 }
 
-function askForMediaData() {
+function askForMediaData(withScreenshot) {
   return new Promise((resolve) => {
     lastID = Date.now()
-    bc.postMessage({ type: "find-req", id: lastID })
+    bc.postMessage({ type: "find-req", id: lastID, withScreenshot })
     setTimeout(() => {
       const data = lastData
       lastID = undefined
@@ -357,13 +378,10 @@ async function getVideoScreenshot(media) {
   return `../assets/storages/${logseq.baseInfo.id}/${filename}`
 }
 
-async function onFindReq(id) {
+async function onFindReq(id, withScreenshot) {
   const media = await findMediaElement()
   if (media?.currentTime) {
-    if (
-      logseq.settings?.captureScreenshot &&
-      media.tagName.toLowerCase() === "video"
-    ) {
+    if (withScreenshot && media.tagName.toLowerCase() === "video") {
       bc.postMessage({
         type: "find-res",
         id,

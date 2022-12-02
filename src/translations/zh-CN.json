@@ -1,8 +1,9 @@
 {
   "Insert media timestamp": "插入媒体时间戳",
+  "Insert media timestamp with screenshot": "插入媒体时间戳+截图",
   "Convert to media renderer": "转换为媒体渲染",
-  "Assign a shortcut for media-timestamp operation, e.g. \"mod+shift+m\".": "为生成 media-timestamp 设置快捷键，例如 \"mod+shift+m\"。",
+  "Assign a shortcut for inserting timestamp, e.g. \"mod+shift+m\".": "为生成时间戳设置快捷键，例如 \"mod+shift+m\"。",
+  "Assign a shortcut for inserting timestamp + screentshot, e.g. \"mod+shift+n\".": "为生成时间戳+截图设置快捷键，例如 \"mod+shift+n\"。",
   "No media": "无媒体",
-  "An offset in seconds, for the capture time. E.g, -2.5 would move the capture time 2.5 seconds before the capture.": "抓取时间偏移量（秒）。例如 -2.5 意味着取抓取前2.5秒作为时间戳。",
-  "Whether or not you want to also capture an screenshot.": "是否要同时捕获视频截图。"
+  "An offset in seconds, for the capture time. E.g, -2.5 would move the capture time 2.5 seconds before the capture.": "抓取时间偏移量（秒）。例如 -2.5 意味着取抓取前2.5秒作为时间戳。"
 }
