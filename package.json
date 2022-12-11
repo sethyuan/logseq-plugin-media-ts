@@ -1,6 +1,6 @@
 {
   "name": "logseq-plugin-media-ts",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "main": "dist/index.html",
   "logseq": {
     "id": "_sethyuan-logseq-media-ts",

@@ -29,10 +29,11 @@ async function main() {
   await setup({ builtinTranslations: { "zh-CN": zhCN } })
 
   logseq.App.onMacroRendererSlotted(tsRenderer)
-  logseq.Editor.registerSlashCommand("Media timestamp", insertMediaTsRenderer)
-  logseq.Editor.registerSlashCommand(
-    "Media timestamp with screenshot",
-    insertMediaTsRendererWithScreenshot,
+  logseq.Editor.registerSlashCommand("Media timestamp", () =>
+    insertMediaTsRenderer(),
+  )
+  logseq.Editor.registerSlashCommand("Media timestamp with screenshot", () =>
+    insertMediaTsRendererWithScreenshot(),
   )
   logseq.App.registerCommandPalette(
     {
