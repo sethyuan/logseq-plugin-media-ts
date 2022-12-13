@@ -163,7 +163,7 @@ async function tsRenderer({ slot, payload: { arguments: args } }) {
 }
 
 async function insertMediaTsRenderer(withScreenshot = false) {
-  const { time, screenshot } = await findMediaData(withScreenshot)
+  const { time, screenshot } = (await findMediaData(withScreenshot)) ?? {}
   if (time != null) {
     const captureOffset = +logseq.settings?.captureOffset ?? 0
     const currentTime = Math.max(time + captureOffset, 0)
