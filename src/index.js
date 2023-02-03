@@ -433,10 +433,9 @@ const model = {
       } else {
         if (media.paused && media.currentTime === 0) {
           askForJumping(ts, blockId)
-        } else {
-          media.currentTime = ts
-          media.play()
         }
+        media.currentTime = ts
+        media.play()
       }
     } else {
       askForJumping(ts, blockId)
