@@ -28,6 +28,21 @@ const storage = logseq.Assets.makeSandboxStorage()
 async function main() {
   await setup({ builtinTranslations: { "zh-CN": zhCN } })
 
+  logseq.provideStyle({
+    key: "kef-media-ts",
+    style: `
+    .kef-media-ts-ts {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .kef-media-ts-pro {
+      font-size: 14px;
+      margin-left: 5px;
+    }
+    `,
+  })
+
   logseq.App.onMacroRendererSlotted(tsRenderer)
   logseq.Editor.registerSlashCommand("Media timestamp", () =>
     insertMediaTsRenderer(),
@@ -157,8 +172,9 @@ async function tsRenderer({ slot, payload: { arguments: args } }) {
   logseq.provideUI({
     key: `media-ts-${slot}`,
     slot,
-    template: `<a class="kef-media-ts-ts svg-small" data-ts="${time}"${dataBlock} data-slot="${slot}" data-on-click="mediaJump">${icon}${timeStr}</a>`,
+    template: `<a class="kef-media-ts-ts svg-small" data-ts="${time}"${dataBlock} data-slot="${slot}" data-on-click="mediaJump">${icon}${timeStr}<a class="kef-media-ts-pro" href="https://github.com/sethyuan/logseq-media-ts" target="_blank">🛒</a></a>`,
     reset: true,
+    style: { alignItems: "center" },
   })
 }
 
